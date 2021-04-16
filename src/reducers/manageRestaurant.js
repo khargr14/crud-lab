@@ -1,53 +1,33 @@
 import cuid from 'cuid';
-import { combineReducers } from 'redux';
 
-// export default function manageRestaurants(state, action) {
-  // original code in place after git clone
-// }
-
-function restaurantReducer(
-  state = [],
-  action
-  ) {
-  switch (action.type) {
-    case 'ADD_RESTAURANT':
-      return state.concat({text: action.text, id: cuid()})
-
-    case 'DELETE_RESTAURANT':
-      return state.filter(r => r.id !== action.id)
-
-    default:
-      return state
-  }
+export default function manageRestaurants(state={ restaurants: [], reviews: []}, action) {
+    switch(action.type){
+        case "ADD_RESTAURANT":
+            const restaurant = {
+                id: cuid(),
+                text: action.payload
+            }
+            return {...state, restaurants: [...state.restaurants, restaurant]}
+        case "REMOVE_RESTAURANT":
+            const restaurants = state.restaurants.filter( r => r.id !== action.payload)
+            return {...state, restaurants: restaurants}
+        case 'ADD_REVIEW':
+            const review = {
+                id: cuid(),
+                restaurantId: action.review.restaurantId,
+                text: action.review.text
+            }
+            return {...state, reviews:[...state.reviews, review]}
+        case 'REMOVE_REVIEW':
+            const reviews = state.reviews.filter( review => review.id !== action.reviewId )
+            return {...state, reviews: reviews}
+        case 'EDIT_RESTAURANT':
+            const rToEdit = state.restaurants.find( r => r.id === action.payload.id)
+            rToEdit.text = action.payload.editedText
+            const newState = state.restaurants.filter( r => r.id !== action.payload.id)
+            
+            return {...state, restaurants: [...newState, rToEdit]}
+        default:
+            return state
+    }
 }
-
-function reviewsReducer(
-  state = [],
-  action
-  ) {
-  switch (action.type) {
-
-  case 'ADD_REVIEW':
-    return state.concat({...action.review, id: cuid()})
-
-  case 'DELETE_RESTAURANT':
-    return state.filter(review => review.restaurantId !== action.id)
-
-  case 'DELETE_REVIEW':
-    return state.filter(review => review.id !== action.reviewId)
-
-    default:
-      return state
-  }
-}
-
-export default combineReducers({
-  restaurants: restaurantReducer,
-  reviews: reviewsReducer
-})
-
-// SHOULD LOOK LIKE THIS
-// state = {
-//   restaurants: [],
-//   reviews: []
-// }
